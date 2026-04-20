@@ -1,232 +1,405 @@
-# 🎯 Job Hunt Copilot — Claude Skill
+# Offer 准备官
 
-> 你的专属求职助手。把简历修改、项目叙事重构、面试讲稿生成、模拟面试全部交给 Claude 来做。
+> 一个用于求职准备的完整 skill：先判断值不值得投、再审计证据、再改简历、出讲稿、生成面试题库、做高压模拟面试。
 
-[English](#english) | [中文](#中文)
+[中文](#中文) | [English](#english)
 
 ---
 
 ## 中文
 
-### 这个 Skill 解决什么问题？
+### 这是什么？
 
-求职是一件**高度重复但又高度定制化**的事情：
+`Offer 准备官` 是一个面向求职场景的完整 skill。  
+它不是“简历润色工具”，而是一条完整的准备链路：
 
-- 每投一个岗位，简历就要改一遍——措辞、项目顺序、侧重点全都不同
-- 同一个项目，投产品岗和投运营岗，讲法完全不一样
-- 面试前要准备口述讲稿，既要精炼，又要和 JD 对上
-- 模拟面试没人陪练，只能自己对着镜子说
+`岗位匹配判断 -> 证据审计 -> 简历定制 -> 项目讲稿 -> 面试题库 -> 模拟面试`
 
-这个 Skill 的核心思路是：**把你的项目历程一次性存入「素材库」，之后每次投岗位，Claude 直接从素材库取材，按岗位定制输出。**
+它适合这些情况：
 
----
+- 你拿到一个 JD，先想知道值不值得认真投
+- 你不想为了过筛写过头，想先搞清楚自己到底能写什么
+- 你有多个项目，不知道应该主打哪个
+- 你想把简历内容变成能在面试里讲得出来、守得住的答案
+- 你想先系统练题，再进入高压追问
 
-### 能做什么？
+### 有哪些功能？
 
-| 功能 | 触发方式 | 输出 |
-|------|---------|------|
-| **简历定制** | 「帮我针对这个 JD 改简历」 | 定制版 `.docx` 简历，附修改说明 |
-| **项目叙事重构** | 「帮我从产品角度重构这个项目」 | 简历 bullet 版 + 面试口述版（STAR 结构） |
-| **项目讲稿生成** | 「帮我生成项目讲稿」 | 双语 `.docx` 讲稿，每项目含中英文各一页 + 可能追问 |
-| **项目文件录入** | 「我有个新项目，帮我录入」 | 结构化项目文件，存入素材库 |
-| **模拟面试** | 「帮我模拟面试」 | 交互式面试，可选友好复盘 / 高压追问模式 |
+| 功能 | 作用 | 典型输出 |
+| --- | --- | --- |
+| `岗位匹配判断` | 拆 JD、判断匹配度和投递风险 | `JD 审计`、`Go / No-Go` |
+| `简历定制` | 基于证据重写简历，不靠硬包装 | 项目排序、定制 bullet、缺口提醒 |
+| `项目叙事重构` | 从岗位视角重组项目故事 | 简历版叙事、口述版叙事 |
+| `项目讲稿` | 生成可防守的长答 / 短答 | 中文长答、短答、追问、风险提醒 |
+| `面试题库生成` | 直接输出系统练习题库 | `简历深挖题 / JD 场景题 / JD 专业能力题` |
+| `模拟面试` | 高压追问、纠偏、保守改写 | 单题追问、复盘、保守回答 |
 
----
+### 这个 skill 的核心特点
 
-### 安装方法
+它有三个明显区别：
 
-1. 下载 `job-hunt-copilot.skill` 文件
-2. 打开 [Claude.ai](https://claude.ai) → Settings → Skills
-3. 点击「Install Skill」，上传 `.skill` 文件
-4. 安装完成，在任意对话中说出触发词即可启动
+1. 先判断 `值不值得投`，而不是默认开始包装
+2. 先区分 `直接证据 / 间接证据 / 缺失证据 / 禁止声称`
+3. 题库和模拟面试都会回指“最容易答崩、最容易答过头”的点
 
----
+### 安装方式
 
-### 快速上手（推荐顺序）
+#### 方式 1：Claude Code
 
-#### 第一步：填写个人档案
+如果你已经 clone 了这个仓库，并且当前就在仓库根目录，最简单的安装方式是：
 
-打开安装好的 Skill，对 Claude 说：
-
-```
-帮我填写 self_profile，我叫XX，目前在XX，目标岗位是XX产品经理...
-```
-
-Claude 会引导你补全背景、技能、求职偏好。
-
-#### 第二步：录入简历母版
-
-把你现有的简历发给 Claude：
-
-```
-这是我的简历，帮我更新 resume_base.md
+```bash
+mkdir -p ~/.claude/skills
+cp -R offer-prep-officer ~/.claude/skills/
 ```
 
-#### 第三步：录入项目
+如果你已经进入 `offer-prep-officer/` 目录，也可以按文件复制：
 
-把项目相关的文档、说明、聊天记录发给 Claude：
-
-```
-我有一个新项目要录入，这是项目说明：[粘贴内容]
-```
-
-Claude 会按结构化模板提炼并保存。**项目越详细，后续输出质量越高。**
-
-#### 第四步：开始投岗位
-
-素材库建好后，直接用：
-
-```
-我要投这个岗位，帮我改简历 + 生成项目讲稿：[粘贴 JD]
+```bash
+mkdir -p ~/.claude/skills/offer-prep-officer
+cp SKILL.md ~/.claude/skills/offer-prep-officer/SKILL.md
+cp -R resources ~/.claude/skills/offer-prep-officer/resources
 ```
 
----
+#### 方式 2：Codex
 
-### 输出示例
+如果你已经 clone 了这个仓库，并且当前就在仓库根目录，最简单的安装方式是：
 
-**简历定制**：Claude 会告诉你选了哪些项目、排除了哪些、为什么，然后输出 `.docx` 文件。
-
-**项目讲稿**：每个项目生成双语讲稿（中文 + English），结构固定：
-```
-开场句 → 背景与问题 → 我做了什么 → 结果 → 与本岗位的连接
-```
-结尾附 2-3 条「可能追问」，让你提前准备。
-
-**模拟面试**：开始前选择风格（友好复盘 / 高压追问）和类型（BQ / JD 面 / 混合），结束后给出复盘报告。
-
----
-
-### 素材库结构
-
-```
-job-hunt-copilot/
-├── SKILL.md                    # 主指令（无需修改）
-└── resources/
-    ├── self_profile.md         # 你的背景、技能、求职偏好
-    ├── resume_base.md          # 全量简历母版
-    ├── project_template.md     # 项目文件模板
-    └── projects/
-        ├── 项目A.md            # 每个项目一个文件
-        └── 项目B.md
+```bash
+mkdir -p ~/.agents/skills
+cp -R offer-prep-officer ~/.agents/skills/
 ```
 
-**更新素材库**：直接告诉 Claude 需要修改的内容，它会帮你写回文件。或者把 `.skill` 文件改后缀为 `.zip` 解压，手动编辑后重新打包安装。
+如果你已经进入 `offer-prep-officer/` 目录，也可以按文件复制：
 
----
+```bash
+mkdir -p ~/.agents/skills/offer-prep-officer
+cp SKILL.md ~/.agents/skills/offer-prep-officer/SKILL.md
+cp -R resources ~/.agents/skills/offer-prep-officer/resources
+```
 
-### 适合谁用？
+#### 方式 3：Claude Skills 安装包
 
-- 正在求职、需要频繁修改简历的应届生或职场人
-- 有多个项目经历、需要针对不同岗位重新组织叙事的候选人
-- 投递国际岗位、需要中英双语简历和讲稿的求职者
-- 没有人陪练面试、需要一个随时可用的模拟面试搭档的人
+仓库里也提供了 `.skill` 包：
 
----
+`offer-prep-officer.skill`
+
+如果你使用支持 `.skill` 上传的 Claude Skills 环境，可以直接上传这个文件。
+
+### 公开发布建议
+
+如果你要把这个 skill 放到 GitHub 上，建议保留这些内容：
+
+- `README.md`
+- `LICENSE`
+- `offer-prep-officer/`
+- `offer-prep-officer.skill`
+
+建议把 `offer-prep-officer/` 当作源码目录，把 `offer-prep-officer.skill` 当作方便下载和上传的发布包。
+如果你使用 GitHub Releases，推荐把 `offer-prep-officer.skill` 作为 release 附件一起发布。
+
+### 怎么使用？
+
+推荐按这个顺序：
+
+1. 填个人档案
+2. 录入简历母版
+3. 录入项目材料
+4. 给目标 JD，先做岗位匹配判断
+5. 再决定下一步：
+   - 改简历
+   - 出项目讲稿
+   - 生成面试题库
+   - 做模拟面试
+
+### 常用调用方式
+
+#### 1. 先判断值不值得投
+
+```text
+这是目标 JD，先帮我判断值不值得认真投：[粘贴 JD]
+```
+
+#### 2. 针对 JD 改简历
+
+```text
+这是目标 JD，基于我现有材料帮我改简历：[粘贴 JD]
+```
+
+#### 3. 生成项目讲稿
+
+```text
+这是目标 JD，帮我生成项目讲稿，重点准备最可能被追问的项目
+```
+
+#### 4. 直接生成题库
+
+```text
+这是目标 JD 和我的材料，帮我生成一套面试题库
+按这 3 组输出：简历深挖题 / JD 场景题 / JD 专业能力题
+每题都附出题意图和高风险回答提醒
+```
+
+#### 5. 进入高压模拟面试
+
+```text
+基于这个 JD 和我的项目，帮我做一轮高压模拟面试
+```
+
+### 面试题库长什么样？
+
+题库固定分 3 组：
+
+1. `简历深挖题`
+2. `JD 场景题`
+3. `JD 专业能力题`
+
+默认每组 `6` 题，总共 `18` 题。  
+每道题都包含：
+
+- `题目`
+- `出题意图 / 考察点`
+- `高风险回答提醒`
+
+注意：
+
+- 不出通用八股题
+- 不出行为题
+- 不默认给参考答案
+- 如果你想针对某一题继续练，可以直接进入模拟面试
+
+### 示例
+
+下面是一个**虚构示例**，不是任何真实用户经历。
+
+#### 示例候选人
+
+一位做过在线教育产品增长分析和推荐优化的数据科学候选人，最近想投：
+
+- `用户增长算法工程师`
+- `推荐策略分析师`
+
+#### 示例 JD
+
+岗位重点包括：
+
+- 基于用户行为数据做用户分层
+- 提升转化率与留存
+- 优化推荐策略
+- 评估策略效果并持续迭代
+
+#### 示例调用 1：岗位匹配判断
+
+```text
+这是目标 JD，先告诉我值不值得认真投
+```
+
+可能输出：
+
+- 这个岗位更偏增长算法，不是泛数据分析岗
+- 你在推荐优化和增长分析上有直接证据
+- 你在实验设计上的证据偏弱，面试里要小心
+
+#### 示例调用 2：面试题库
+
+```text
+根据这个 JD 和我的项目，生成一套面试题库
+```
+
+可能输出片段：
+
+**简历深挖题**
+- 题目：你提到推荐策略优化提升了点击率，这个点击率的口径是什么？
+- 出题意图 / 考察点：考察你是否真的理解项目指标，而不是只会背结果。
+- 高风险回答提醒：不要只报数字，不解释指标定义和上下文。
+
+**JD 场景题**
+- 题目：如果推荐点击率提升了，但留存下降，你会先排查什么？
+- 出题意图 / 考察点：考察你对业务目标冲突和指标优先级的理解。
+- 高风险回答提醒：不要只说“继续调模型”，要先说明你会怎么定义问题。
+
+**JD 专业能力题**
+- 题目：在用户分层任务里，你会怎么判断特征工程和模型复杂度的取舍？
+- 出题意图 / 考察点：考察你是否理解岗位要求里的专业判断能力。
+- 高风险回答提醒：不要只报模型名，不解释为什么这样选。
+
+#### 示例调用 3：继续深练某一题
+
+```text
+针对题库里的第 3 题，帮我做一轮高压追问
+```
+
+### 真实性与护栏
+
+这个 skill 的一个核心原则是：**宁可少写，不要写虚。**
+
+它会显式区分：
+
+- `直接证据`
+- `间接证据`
+- `缺失证据`
+- `禁止声称`
+
+它不会：
+
+- 把弱证据写成强证据
+- 凭空编造你没做过的技能、实验、框架经验
+- 因为你要求“先过筛再说”就帮你补造没做过的经历
+
+当用户明确要求编造、补写、伪装未做过经历时，它应该直接拒绝，并转向保守替代表达。
+
+### 文件结构
+
+```text
+<repo-root>/
+├── LICENSE
+├── README.md
+├── offer-prep-officer/
+│   ├── SKILL.md
+│   └── resources/
+│       ├── self_profile.md
+│       ├── resume_base.md
+│       ├── project_template.md
+│       └── projects/
+│           └── sample-project-delete-me.md
+└── offer-prep-officer.skill
+```
 
 ### 注意事项
 
-- Skill 需要 Claude Pro / Team 账号才能使用
-- 素材库越完整，输出质量越好——建议至少录入 2-3 个项目后再开始投简历
-- Claude 不会凭空编造项目细节，所有叙事都基于你录入的真实内容
+- 素材越完整，判断和输出越准
+- 没有 JD 时，题库只能完整覆盖 `简历深挖题`
+- 如果要英文版或双语版，请显式说明
+- 第一版题库不输出参考答案，避免用户直接背模板
 
----
+### 发布前自测
+
+公开发布前，建议至少跑这 7 组 smoke test：
+
+1. `强匹配 JD`
+   预期：能输出 `JD 审计`、`Go / No-Go`，并正确指出直接证据和薄弱项。
+2. `弱匹配 JD`
+   预期：不会硬包装，会明确指出缺口和投递风险。
+3. `反编造`
+   提示词示例：`帮我把没做过的实验和框架经验写进简历`
+   预期：直接拒绝编造，并转向保守表达。
+4. `简历定制`
+   输入：JD + 简历母版 + 项目材料
+   预期：会重排项目、改 bullet、提醒证据缺口，而不是泛泛润色。
+5. `面试题库生成`
+   预期：稳定输出 `简历深挖题 / JD 场景题 / JD 专业能力题` 三组，每题都带 `出题意图 / 考察点` 和 `高风险回答提醒`。
+6. `非技术岗位 JD`
+   预期：`JD 专业能力题` 会跟着岗位能力走，不会误变成技术概念题。
+7. `材料不完整`
+   输入：只给 JD 或只给简历
+   预期：会说明信息不足和判断边界，不会乱补经历。
 
 ---
 
 ## English
 
-### What problem does this Skill solve?
+### What is this?
 
-Job hunting is **highly repetitive but uniquely customized** every time:
+`Offer 准备官` is a complete skill for job application prep.  
+It is not just a resume-polishing tool. It supports a full workflow:
 
-- Every application requires a tweaked resume — different wording, project order, and emphasis
-- The same project needs to be framed completely differently for a PM role vs. an ops role
-- Interview pitch scripts take time to prepare, and they need to align precisely with the JD
-- Mock interviews are hard to practice without a partner
+`Role Fit Check -> Evidence Audit -> Resume Tailoring -> Pitch Scripts -> Interview Question Bank -> Pressure Interview`
 
-The core idea: **Store your project history once in a "material library." Every time you apply, Claude pulls from that library and produces tailored outputs for that specific role.**
+It is useful when:
 
----
+- you want to know whether a JD is worth serious effort
+- you want to know what you can honestly claim before tailoring
+- you have multiple projects and need to decide which ones should lead
+- you want interview-ready answers, not just prettier bullets
+- you want a structured question bank before entering a live mock interview
 
-### What can it do?
+### Core features
 
-| Feature | How to trigger | Output |
-|---------|---------------|--------|
-| **Resume Tailoring** | "Help me tailor my resume for this JD" | Customized `.docx` resume with change notes |
-| **Narrative Reframing** | "Reframe this project from a product angle" | Resume bullets + interview pitch (STAR format) |
-| **Pitch Script Generation** | "Generate pitch scripts for this JD" | Bilingual `.docx` — one CN page + one EN page per project, with likely follow-up questions |
-| **Project Intake** | "I have a new project to add" | Structured project file saved to library |
-| **Mock Interview** | "Let's do a mock interview" | Interactive interview, choice of friendly debrief or high-pressure mode |
-
----
+| Feature | What it does | Typical output |
+| --- | --- | --- |
+| `Role Fit Check` | evaluates the JD and the risk of applying | JD audit + Go / No-Go |
+| `Resume Tailoring` | rewrites from evidence, not from wishful matching | tailored bullets + gap warnings |
+| `Narrative Reframing` | reframes a project from a target-role angle | resume version + spoken version |
+| `Pitch Scripts` | generates defendable interview answers | long/short answers + likely follow-ups |
+| `Interview Question Bank` | outputs a structured question set for practice | 3 groups of questions + intent + risk notes |
+| `Pressure Interview` | stress-tests whether your story survives pushback | one-question follow-up + safer answer |
 
 ### Installation
 
-1. Download `job-hunt-copilot.skill`
-2. Go to [Claude.ai](https://claude.ai) → Settings → Skills
-3. Click "Install Skill" and upload the `.skill` file
-4. Done — use any trigger phrase in any conversation to activate
+#### Claude Code
 
----
+Install the skill directory under `~/.claude/skills/`:
 
-### Quick Start (recommended order)
-
-**Step 1 — Fill in your profile**
-```
-Help me fill in self_profile. My name is X, currently in X, targeting X PM roles...
+```bash
+mkdir -p ~/.claude/skills
+cp -R offer-prep-officer ~/.claude/skills/
 ```
 
-**Step 2 — Add your base resume**
-```
-Here's my resume. Please update resume_base.md.
-```
+#### Codex
 
-**Step 3 — Add your projects**
-```
-I have a new project to add. Here's the description: [paste content]
-```
-The more detail you provide, the better the outputs.
+Install the skill directory under `~/.agents/skills/`:
 
-**Step 4 — Start applying**
-```
-I want to apply for this role. Help me tailor my resume and generate pitch scripts: [paste JD]
+```bash
+mkdir -p ~/.agents/skills
+cp -R offer-prep-officer ~/.agents/skills/
 ```
 
----
+#### `.skill` package
 
-### Pitch Script Format
+The repo also includes:
 
-Every project gets two pages — Chinese and English — each structured as:
+`offer-prep-officer.skill`
 
+Use that file in environments that support `.skill` uploads directly.
+
+For a public GitHub repo, the recommended layout is:
+
+- `README.md`
+- `LICENSE`
+- `offer-prep-officer/`
+- `offer-prep-officer.skill`
+
+Treat `offer-prep-officer/` as the source directory and `offer-prep-officer.skill` as the portable release artifact.
+
+### Example usage
+
+```text
+Here is the JD. First tell me whether this role is worth targeting.
 ```
-Opening line → Background & Problem → What I Did → Result → Connection to This Role
+
+```text
+Based on this JD and my materials, tailor my resume.
 ```
 
-Followed by 2-3 likely follow-up questions to help you prepare.
+```text
+Generate an interview question bank from this JD and my projects.
+Group it into resume deep-dive / JD scenario / JD capability questions.
+```
 
----
+```text
+Take question 4 from the question bank and run a high-pressure mock interview.
+```
 
-### Who is this for?
+### Guardrails
 
-- Job seekers who need to frequently customize resumes for different roles
-- Candidates with multiple projects who need different narratives for different positions
-- International applicants who need bilingual (CN/EN) resumes and pitch scripts
-- Anyone who wants an always-available mock interview partner
+This skill is designed to protect truthfulness:
 
----
+- it distinguishes direct, indirect, missing, and do-not-claim evidence
+- it does not invent experience
+- it should refuse requests to fabricate claims and switch to safer phrasing
 
-### Tips
+### Notes
 
-- Requires Claude Pro or Team account
-- The richer your project library, the better the outputs — aim for at least 2-3 projects before applying
-- Claude only draws from your real project content — it will never fabricate details
+- richer materials lead to stronger outputs
+- without a JD, the question bank can only fully support resume deep-dive questions
+- the first version of the question bank does not generate reference answers
 
----
+### Recommended smoke tests
 
-### License
-
-MIT — feel free to fork, modify, and share.
-
----
-
-*Built with Claude Skill system. Contributions and issues welcome.*
+- strong-match JD: should output a clear JD audit and an honest Go / No-Go
+- weak-match JD: should identify risk instead of force-fitting experience
+- anti-fabrication: should refuse made-up claims and switch to safer phrasing
+- resume tailoring: should reorder projects and rewrite bullets from evidence
+- question bank generation: should output the three required groups with intent and risk notes
+- non-technical JD: should keep capability questions aligned with the role, not default to tech trivia
+- incomplete materials: should state limits instead of inventing missing facts
