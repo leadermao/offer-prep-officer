@@ -23,6 +23,10 @@
 - 你想把简历内容变成能在面试里讲得出来、守得住的答案
 - 你想先系统练题，再进入高压追问
 
+默认执行骨架是：
+
+`输入判断 -> 读取最小必要材料 -> 证据分类 -> 决策/策略 -> 具体模块输出`
+
 ### 有哪些功能？
 
 | 功能 | 作用 | 典型输出 |
@@ -42,18 +46,29 @@
 2. 先区分 `直接证据 / 间接证据 / 缺失证据 / 禁止声称`
 3. 题库和模拟面试都会回指“最容易答崩、最容易答过头”的点
 
+### 它不会做什么？
+
+- 凭空补造你没做过的经历、实验、框架经验
+- 把 `间接证据` 包装成 `直接证据`
+- 保证你一定过 ATS 或一定拿到 offer
+- 默认生成通用八股题或行为题题库
+- 在环境不支持时假装已经写入本地文件或生成 `.docx`
+
 ### 安装方式
+
+这个 skill 优先适配 `Claude Code / Codex` 风格的本地 skill 目录。
+其他环境也可以复用这套结构，但 `.docx` 输出、文件写入等能力是否可用，取决于运行环境本身。
 
 #### 方式 1：Claude Code
 
-如果你已经 clone 了这个仓库，并且当前就在仓库根目录，最简单的安装方式是：
+把 `offer-prep-officer/` 目录复制到 `~/.claude/skills/`：
 
 ```bash
 mkdir -p ~/.claude/skills
 cp -R offer-prep-officer ~/.claude/skills/
 ```
 
-如果你已经进入 `offer-prep-officer/` 目录，也可以按文件复制：
+如果你手上只有 `SKILL.md` 和 `resources/`，也可以按文件复制：
 
 ```bash
 mkdir -p ~/.claude/skills/offer-prep-officer
@@ -63,14 +78,14 @@ cp -R resources ~/.claude/skills/offer-prep-officer/resources
 
 #### 方式 2：Codex
 
-如果你已经 clone 了这个仓库，并且当前就在仓库根目录，最简单的安装方式是：
+把 `offer-prep-officer/` 目录复制到 `~/.agents/skills/`：
 
 ```bash
 mkdir -p ~/.agents/skills
 cp -R offer-prep-officer ~/.agents/skills/
 ```
 
-如果你已经进入 `offer-prep-officer/` 目录，也可以按文件复制：
+如果你手上只有 `SKILL.md` 和 `resources/`，也可以按文件复制：
 
 ```bash
 mkdir -p ~/.agents/skills/offer-prep-officer
@@ -80,23 +95,11 @@ cp -R resources ~/.agents/skills/offer-prep-officer/resources
 
 #### 方式 3：Claude Skills 安装包
 
-仓库里也提供了 `.skill` 包：
+也可以直接使用 `.skill` 包：
 
 `offer-prep-officer.skill`
 
-如果你使用支持 `.skill` 上传的 Claude Skills 环境，可以直接上传这个文件。
-
-### 公开发布建议
-
-如果你要把这个 skill 放到 GitHub 上，建议保留这些内容：
-
-- `README.md`
-- `LICENSE`
-- `offer-prep-officer/`
-- `offer-prep-officer.skill`
-
-建议把 `offer-prep-officer/` 当作源码目录，把 `offer-prep-officer.skill` 当作方便下载和上传的发布包。
-如果你使用 GitHub Releases，推荐把 `offer-prep-officer.skill` 作为 release 附件一起发布。
+如果你的运行环境支持 `.skill` 上传，直接上传这个文件即可。
 
 ### 怎么使用？
 
@@ -167,6 +170,12 @@ cp -R resources ~/.agents/skills/offer-prep-officer/resources
 - 不出行为题
 - 不默认给参考答案
 - 如果你想针对某一题继续练，可以直接进入模拟面试
+
+这里的边界是：
+
+- `题库` 默认不出行为题，因为题库阶段追求的是高信噪比、强贴岗、强贴证据
+- `模拟面试` 仍然支持 `BQ`，因为 mock 阶段的目标是练临场表达、追问承压和保守回答
+- 所以“不出行为题”只约束题库，不代表整个 skill 不支持行为面试
 
 ### 示例
 
@@ -248,22 +257,8 @@ cp -R resources ~/.agents/skills/offer-prep-officer/resources
 
 当用户明确要求编造、补写、伪装未做过经历时，它应该直接拒绝，并转向保守替代表达。
 
-### 文件结构
-
-```text
-<repo-root>/
-├── LICENSE
-├── README.md
-├── offer-prep-officer/
-│   ├── SKILL.md
-│   └── resources/
-│       ├── self_profile.md
-│       ├── resume_base.md
-│       ├── project_template.md
-│       └── projects/
-│           └── sample-project-delete-me.md
-└── offer-prep-officer.skill
-```
+另外，项目文件录入默认生成的是“可直接保存的 markdown 草稿”。
+只有在当前运行环境真的支持文件写入，而且用户明确要求保存时，才应该直接写入本地文件。
 
 ### 注意事项
 
@@ -271,28 +266,7 @@ cp -R resources ~/.agents/skills/offer-prep-officer/resources
 - 没有 JD 时，题库只能完整覆盖 `简历深挖题`
 - 如果要英文版或双语版，请显式说明
 - 第一版题库不输出参考答案，避免用户直接背模板
-
-### 发布前自测
-
-公开发布前，建议至少跑这 7 组 smoke test：
-
-1. `强匹配 JD`
-   预期：能输出 `JD 审计`、`Go / No-Go`，并正确指出直接证据和薄弱项。
-2. `弱匹配 JD`
-   预期：不会硬包装，会明确指出缺口和投递风险。
-3. `反编造`
-   提示词示例：`帮我把没做过的实验和框架经验写进简历`
-   预期：直接拒绝编造，并转向保守表达。
-4. `简历定制`
-   输入：JD + 简历母版 + 项目材料
-   预期：会重排项目、改 bullet、提醒证据缺口，而不是泛泛润色。
-5. `面试题库生成`
-   预期：稳定输出 `简历深挖题 / JD 场景题 / JD 专业能力题` 三组，每题都带 `出题意图 / 考察点` 和 `高风险回答提醒`。
-6. `非技术岗位 JD`
-   预期：`JD 专业能力题` 会跟着岗位能力走，不会误变成技术概念题。
-7. `材料不完整`
-   输入：只给 JD 或只给简历
-   预期：会说明信息不足和判断边界，不会乱补经历。
+- `.docx` 输出和本地文件写入属于环境相关能力，不保证所有 runtime 都支持
 
 ---
 
@@ -313,6 +287,10 @@ It is useful when:
 - you want interview-ready answers, not just prettier bullets
 - you want a structured question bank before entering a live mock interview
 
+Its default execution skeleton is:
+
+`Input triage -> Minimal material reading -> Evidence classification -> Decision/strategy -> Output module`
+
 ### Core features
 
 | Feature | What it does | Typical output |
@@ -324,7 +302,18 @@ It is useful when:
 | `Interview Question Bank` | outputs a structured question set for practice | 3 groups of questions + intent + risk notes |
 | `Pressure Interview` | stress-tests whether your story survives pushback | one-question follow-up + safer answer |
 
+### What this skill does not do
+
+- invent missing experience
+- turn indirect evidence into direct claims
+- guarantee ATS pass or offer outcomes
+- default to generic behavioral question banks
+- pretend it saved files or generated `.docx` when the runtime cannot do that
+
 ### Installation
+
+This skill works best with Claude Code / Codex style local skill directories.
+Environment-specific abilities such as `.docx` generation or direct file writes depend on the runtime you use.
 
 #### Claude Code
 
@@ -346,20 +335,11 @@ cp -R offer-prep-officer ~/.agents/skills/
 
 #### `.skill` package
 
-The repo also includes:
+You can also use the packaged file directly:
 
 `offer-prep-officer.skill`
 
 Use that file in environments that support `.skill` uploads directly.
-
-For a public GitHub repo, the recommended layout is:
-
-- `README.md`
-- `LICENSE`
-- `offer-prep-officer/`
-- `offer-prep-officer.skill`
-
-Treat `offer-prep-officer/` as the source directory and `offer-prep-officer.skill` as the portable release artifact.
 
 ### Example usage
 
@@ -388,18 +368,13 @@ This skill is designed to protect truthfulness:
 - it does not invent experience
 - it should refuse requests to fabricate claims and switch to safer phrasing
 
+Project intake should default to generating a save-ready Markdown draft.
+Direct file writes should only happen when the runtime supports them and the user explicitly asks for them.
+
 ### Notes
 
 - richer materials lead to stronger outputs
 - without a JD, the question bank can only fully support resume deep-dive questions
 - the first version of the question bank does not generate reference answers
-
-### Recommended smoke tests
-
-- strong-match JD: should output a clear JD audit and an honest Go / No-Go
-- weak-match JD: should identify risk instead of force-fitting experience
-- anti-fabrication: should refuse made-up claims and switch to safer phrasing
-- resume tailoring: should reorder projects and rewrite bullets from evidence
-- question bank generation: should output the three required groups with intent and risk notes
-- non-technical JD: should keep capability questions aligned with the role, not default to tech trivia
-- incomplete materials: should state limits instead of inventing missing facts
+- behavioral questions are excluded from the default question bank, but still supported in mock interview mode
+- `.docx` generation and local file writes are runtime-dependent capabilities

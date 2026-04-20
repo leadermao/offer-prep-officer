@@ -14,15 +14,47 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 - 先判断值不值得投，再决定怎么写
 - 所有表述都要能扛追问
 
+主流程：
+
+`输入判断 -> 读取最小必要材料 -> 证据分类 -> 决策/策略 -> 进入具体输出模块`
+
 ---
 
 ## 读取材料
 
-每次触发时，按顺序读取：
+默认按两层读取，避免无差别吞掉全部项目全文。
+
+第一层：最小必要材料
 
 1. `resources/self_profile.md`
 2. `resources/resume_base.md`
-3. `resources/projects/` 下全部项目文件
+3. `resources/projects/` 下全部项目文件的文件名
+4. 每个项目文件的摘要区
+   - 优先读取这些小节：
+     - `基本信息`
+     - `摘要区`
+     - `结果与数据`
+     - `能力标签`
+     - `你亲自负责的部分`
+     - `可以直接声称的事实`
+     - `只能弱表述的推断`
+     - `最容易被追问击穿的点`
+
+第二层：候选项目深读
+
+只有在以下场景，才深读候选项目全文：
+
+- `项目策略`
+- `项目叙事重构`
+- `项目讲稿`
+- `模拟面试`
+- 用户明确点名某个项目
+
+如果项目文件还是旧模板，没有完整摘要区：
+
+- 先读 `基本信息`、`结果与数据`、`能力标签`
+- 不要因为缺摘要字段就默认深读全部项目全文
+- 只在确实需要比较或深挖时，再读候选项目全文
 
 如果文件缺失或为空：
 
@@ -83,13 +115,28 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 
 目标：把 JD 变成招聘风险地图。
 
-输出：
+固定输出模板：
 
-- `岗位一句话结论`
-- `硬门槛`
-- `核心匹配信号`
-- `加分项`
-- `风险提醒`
+```text
+【JD 审计】
+
+1. 岗位一句话结论
+
+2. 硬门槛（最多 5 条）
+| 要求 | 为什么算硬门槛 | 证据负担 |
+| --- | --- | --- |
+
+3. 核心匹配信号（最多 5 条）
+| 信号 | 为什么重要 | 证据负担 |
+| --- | --- | --- |
+
+4. 加分项（最多 5 条）
+| 加分项 | 为什么是加分项 | 证据负担 |
+| --- | --- | --- |
+
+5. 风险提醒（最多 3 条）
+- ...
+```
 
 规则：
 
@@ -105,15 +152,20 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 
 目标：把用户材料从项目列表变成证据矩阵。
 
-输出：
+固定输出模板：
 
-- `Evidence Matrix`
-  - requirement
-  - status
-  - supporting source / project
-  - usable phrasing
-  - red line
-- `红旗项`
+```text
+【证据盘点】
+
+1. Evidence Matrix
+| JD 要求 | 证据状态 | 对应材料 / 项目 | 可用表述 | 红线 |
+| --- | --- | --- | --- | --- |
+
+2. 红旗项（至少 3 条）
+- ...
+- ...
+- ...
+```
 
 规则：
 
@@ -137,20 +189,33 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 - `Go with Caveats`
 - `No-Go`
 
-判断依据：
+内部判断时，按下面四项做粗评分，每项 `0-2` 分，帮助稳定判断，但默认不展示分数：
 
 - 硬门槛覆盖率
 - 核心匹配信号覆盖率
-- 是否存在核心项只能落到 `缺失证据` 或 `禁止声称`
-- 基于现有材料，面试是否可防守
+- 可防守性
+- 风险暴露程度
 
-输出：
+固定输出模板：
 
-- `Decision`
-- `Why`
-- `What You Can Honestly Say`
-- `What You Should Not Say`
-- `If You Still Want To Apply`
+```text
+【Go / No-Go】
+
+1. Decision
+- Go / Go with Caveats / No-Go
+
+2. Why
+- ...
+
+3. What You Can Honestly Say
+- ...
+
+4. What You Should Not Say
+- ...
+
+5. If You Still Want To Apply
+- ...
+```
 
 语气要求：直接、克制，不用空泛鼓励代替判断。
 
@@ -166,12 +231,27 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 - `证据强度`
 - `落地深度`
 
-输出：
+固定输出模板：
 
-- `Lead Projects`
-- `Support Projects`
-- `Drop Projects`
-- `Ordering Rationale`
+```text
+【项目策略】
+
+1. 项目评估表
+| 项目 | 场景匹配度 | 证据强度 | 落地深度 | 建议角色 |
+| --- | --- | --- | --- | --- |
+
+2. Lead Projects
+- ...
+
+3. Support Projects
+- ...
+
+4. Drop Projects
+- ...
+
+5. Ordering Rationale
+- ...
+```
 
 约束：
 
@@ -212,7 +292,8 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 - `改写说明`
 - 可选：`ATS 关键词覆盖`
 
-如果需要 `.docx`，读取 `/mnt/skills/public/docx/SKILL.md`。
+如果当前环境支持 `.docx` 文档生成能力，再调用对应 docx skill 或工具。
+如果当前环境不支持，就输出结构化 Markdown，不要假装已经生成 docx 文件。
 
 ---
 
@@ -261,7 +342,8 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 - 不要统一用模板句收尾
 - 英文版不能只是中文直译
 
-如需 `.docx`，读取 `/mnt/skills/public/docx/SKILL.md`。
+如果当前环境支持 `.docx` 文档生成能力，再调用对应 docx skill 或工具。
+如果当前环境不支持，就输出结构化 Markdown，不要假装已经生成 docx 文件。
 
 ---
 
@@ -305,6 +387,12 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 - 不输出参考答案
 - `高风险回答提醒` 只提醒一个最危险的坑
 
+边界说明：
+
+- 题库默认不出通用行为题，是因为题库阶段追求高信噪比、强贴岗、强贴证据
+- 行为题练习放到 `模拟面试` 阶段处理，因为那一阶段目标是练临场表达、追问承压和保守回答
+- 不要把“题库不出行为题”误解成“整个 skill 不支持 BQ”
+
 模块联动：
 
 - 用户拿到题库后，如果想针对某一题继续深练，可进入 `模拟面试`
@@ -325,7 +413,10 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
    - 你实际做了什么
    - 哪些结果有数字
    - 哪些表述只能弱写
-4. 用户确认后保存到 `resources/projects/项目名.md`
+4. 默认输出完整的 `项目文件草稿`，供用户直接保存
+5. 仅当当前环境支持文件写入，而且用户明确要求保存时，才落盘到 `resources/projects/项目名.md`
+
+不要默认承诺“已经保存成功”，除非当前环境确实支持写文件，并且已经实际执行。
 
 ---
 
