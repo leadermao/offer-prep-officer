@@ -461,6 +461,217 @@ description: Use when the user is applying for a job, tailoring a resume to a JD
 
 ---
 
+## 附录一：HTML 报告生成
+
+触发词：
+「生成 HTML 报告」「导出报告」「下载报告」「给我一份完整报告」
+
+当用户需要一份完整、可下载的报告时，按以下规范生成 HTML。
+
+### 报告结构
+
+```html
+<!-- 页面框架 -->
+<header class="report-header">
+  <h1>Offer 准备报告</h1>
+  <div class="report-meta">生成时间：{{timestamp}}</div>
+</header>
+
+<nav class="report-nav">
+  <a href="#jd-audit">JD 审计</a>
+  <a href="#evidence-review">证据盘点</a>
+  <a href="#go-no-go">Go / No-Go</a>
+  <a href="#project-strategy">项目策略</a>
+  <!-- 其他模块锚点 -->
+</nav>
+
+<main class="report-content">
+  <section id="jd-audit" class="report-section">...</section>
+  <section id="evidence-review" class="report-section">...</section>
+  <!-- 其他模块 -->
+</main>
+
+<footer class="report-footer">
+  <p>由 Offer 准备官 生成</p>
+</footer>
+```
+
+### HTML 标签映射规范
+
+| Markdown 语法 | HTML 标签 | 示例 |
+|--------------|----------|------|
+| `# 标题` | `<h1>` | `<h1>JD 审计</h1>` |
+| `## 标题` | `<h2>` | `<h2>硬门槛</h2>` |
+| `### 标题` | `<h3>` | `<h3>证据负担</h3>` |
+| `**粗体**` | `<strong>` | `<strong>直接证据</strong>` |
+| `*斜体*` | `<em>` | `<em>间接推断</em>` |
+| `- 列表项` | `<ul><li>` | `<ul class="report-list"><li>...</li></ul>` |
+| `1. 有序` | `<ol><li>` | `<ol class="report-list"><li>...</li></ol>` |
+| `> 引用` | `<blockquote class="callout">` | `<blockquote class="callout callout-warning">` |
+| `\|表格\|` | `<table class="report-table">` | 详见表格规范 |
+| `` `代码` `` | `<code>` | `<code>直接证据</code>` |
+| `---` | `<hr class="section-divider">` | 章节分隔线 |
+
+### 表格规范
+
+```html
+<table class="report-table">
+  <thead>
+    <tr>
+      <th>列1</th>
+      <th>列2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>内容</td>
+      <td>内容</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+### 决策状态映射
+
+| 状态 | CSS 类名 | 颜色建议 |
+|------|----------|----------|
+| Go | `decision-go` | 绿色 `#38A169` |
+| Go with Caveats | `decision-caveats` | 黄色 `#D69E2E` |
+| No-Go | `decision-no-go` | 红色 `#E53E3E` |
+
+### 证据状态映射
+
+| 状态 | 图标 | CSS 类名 |
+|------|------|----------|
+| 直接证据 | `●` | `evidence-direct` |
+| 间接证据 | `○` | `evidence-indirect` |
+| 缺失证据 | `◐` | `evidence-missing` |
+| 禁止声称 | `✕` | `evidence-forbidden` |
+
+### 特殊区块规范
+
+```html
+<!-- 警告区块（禁止声称、高风险） -->
+<div class="alert alert-danger">
+  <strong>⚠️ 高风险表述不要说：</strong>
+  <ul>
+    <li>"独立完成 A/B 测试" → 实际只是参与</li>
+  </ul>
+</div>
+
+<!-- 提醒区块（缺口提醒） -->
+<div class="alert alert-warning">
+  <strong>⚠️ 缺口提醒：</strong>
+  <p>缺少 A/B 测试直接证据...</p>
+</div>
+
+<!-- 决策卡片 -->
+<div class="decision-card decision-caveats">
+  <div class="decision-badge">GO WITH CAVEATS</div>
+  <div class="decision-score">
+    <span>硬门槛覆盖率</span>
+    <div class="score-bar" style="--percent: 80%"></div>
+  </div>
+</div>
+
+<!-- 项目卡片 -->
+<div class="project-card">
+  <div class="project-header">
+    <h3>项目名称</h3>
+    <span class="project-tag tag-lead">主推项目</span>
+  </div>
+  <div class="project-metrics">
+    <div class="metric">
+      <span>场景匹配度</span>
+      <div class="score-bar" style="--percent: 85%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 面试讲稿区块 -->
+<details class="speech-block">
+  <summary>中文长答（90-120s）</summary>
+  <div class="speech-content">...</div>
+  <div class="follow-up">可能追问：...</div>
+</details>
+
+<!-- 题库区块 -->
+<div class="question-group">
+  <h3>简历深挖题 <span class="count">6 题</span></h3>
+  <div class="question-item">
+    <div class="question-title">Q1. 你在项目中具体负责什么？</div>
+    <div class="question-meta">
+      <span class="tag">考察点：ownership</span>
+    </div>
+    <div class="question-risk">风险：你可能把团队动作说成个人动作</div>
+  </div>
+</div>
+```
+
+### 样式要求
+
+```css
+/* 必须包含的基础样式 */
+:root {
+  --bg-primary: #FAFBFC;
+  --bg-secondary: #FFFFFF;
+  --bg-accent: #F0F4F8;
+  --text-primary: #1A202C;
+  --text-secondary: #4A5568;
+  --border: #E2E8F0;
+  --accent-blue: #3182CE;
+  --accent-green: #38A169;
+  --accent-yellow: #D69E2E;
+  --accent-red: #E53E3E;
+  --accent-purple: #805AD5;
+}
+
+/* 深色模式 */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-primary: #1A202C;
+    --bg-secondary: #2D3748;
+    --text-primary: #F7FAFC;
+    --text-secondary: #A0AEC0;
+    --border: #4A5568;
+  }
+}
+
+/* 打印友好 */
+@media print {
+  .report-nav { display: none; }
+  .report-header { page-break-after: always; }
+  details[open] summary ~ * { display: block; }
+  .alert { border: 1px solid currentColor; }
+}
+```
+
+### 响应式规范
+
+```css
+/* 移动端：侧边导航变顶部 */
+@media (max-width: 768px) {
+  .report-nav {
+    position: sticky;
+    top: 0;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .report-content {
+    padding: 1rem;
+  }
+}
+```
+
+### 约束
+
+- 不生成 JavaScript 交互，报告以静态 HTML 为主
+- 不使用外部 CDN（如 Bootstrap、Tailwind），样式内联或使用 `<style>` 标签
+- 不输出不完整报告：如果某些模块没有执行，用占位符 `{{未执行}}` 标注
+- 如果用户需要 `.docx`，调用 `docx` skill；`.html` 优先用本模块
+
+---
+
 ## 语言规则
 
 - 默认中文
